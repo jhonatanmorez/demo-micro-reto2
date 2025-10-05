@@ -41,7 +41,7 @@ pipeline {
       }
       post {
         success {
-          archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+          archiveArtifacts artifacts: 'demo-micro/target/*.jar', fingerprint: true
         }
       }
     }
