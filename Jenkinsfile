@@ -8,6 +8,12 @@ pipeline {
     JAVA_HOME = "${tool 'JDK17'}"
     MAVEN_HOME = "${tool 'M3'}"
     PATH = "${JAVA_HOME}/bin:${MAVEN_HOME}/bin:${env.PATH}"
+    //Cloud Run / GCP
+    PROJECT_ID = 'cka-1-469505'
+    REGION = 'us-central1'
+    SERVICE_NAME = 'reto2-demo-micro'
+    GCP_KEY_FILE = '/home/jenkins/agent/gcp-key.json'
+    IMAGE_GCP = "gcr.io/${PROJECT_ID}/${SERVICE_NAME}"
   }
 
   options {
@@ -61,6 +67,40 @@ pipeline {
         }
       }
     }
+    stage('Push Image to Google Artifact Registry') {
+      steps {
+        script {
+          echo "☁️ Autenticando con GCP y subiendo imagen a GCR..."
+          sh """
+            gcloud auth activate-service-account --key-file=${GCP_KEY_FILE}
+            gcloud auth configure-docker gcr.io -q
+            docker tag ${DOCKERHUB_NAMESPACE}/${IMAGE_NAME}:${BUILD_NUMBER} ${IMAGE_GCP}:${BUILD_NUMBER}
+            docker push ${IMAGE_GCP}:${BUILD_NUMBER}
+            docker tag ${IMAGE_GCP}:${BUILD_NUMBER} ${IMAGE_GCP}:latest
+            docker push ${IMAGE_GCP}:latest
+          """
+        }
+      }
+    }
+
+    stage('Deploy to Cloud Run') {
+      steps {
+        script {
+          echo "🚀 Desplegando servicio ${SERVICE_NAME} en Cloud Run..."
+          sh """
+            gcloud auth activate-service-account --key-file=${GCP_KEY_FILE}
+            gcloud config set project ${PROJECT_ID}
+            gcloud config set run/region ${REGION}
+            gcloud run deploy ${SERVICE_NAME} \
+              --image ${IMAGE_GCP}:${BUILD_NUMBER} \
+              --region ${REGION} \
+              --platform managed \
+              --allow-unauthenticated
+          """
+        }
+      }
+    }
+
   }
 
   post {
