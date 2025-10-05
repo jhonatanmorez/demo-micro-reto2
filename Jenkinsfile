@@ -67,20 +67,22 @@ pipeline {
         }
       }
     }
+   
     stage('Push Image to Google Artifact Registry') {
       steps {
         script {
-          echo "☁️ Autenticando con GCP y subiendo imagen a GCR..."
-          sh """
-            gcloud auth activate-service-account --key-file=${GCP_KEY_FILE}
-            gcloud auth configure-docker gcr.io -q
-            docker tag ${DOCKERHUB_NAMESPACE}/${IMAGE_NAME}:${BUILD_NUMBER} ${IMAGE_GCP}:${BUILD_NUMBER}
-            docker push ${IMAGE_GCP}:${BUILD_NUMBER}
-            docker tag ${IMAGE_GCP}:${BUILD_NUMBER} ${IMAGE_GCP}:latest
-            docker push ${IMAGE_GCP}:latest
-          """
+            echo "☁️ Autenticando con GCP y subiendo imagen a GCR..."
+            withCredentials([file(credentialsId: 'gcp-key', variable: 'GCP_KEY')]) {
+                sh '''
+                    echo "Usando clave: $GCP_KEY"
+                    gcloud auth activate-service-account --key-file=$GCP_KEY
+                    gcloud config set project $PROJECT_ID
+                    gcloud auth configure-docker $REGION-docker.pkg.dev -q
+                    docker push $REGION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$IMAGE_NAME:$BUILD_NUMBER
+                '''
+                }
+            }
         }
-      }
     }
 
     stage('Deploy to Cloud Run') {
