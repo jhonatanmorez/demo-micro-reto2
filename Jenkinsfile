@@ -14,7 +14,7 @@ pipeline {
     REPO_NAME = 'reto2-repo'
     SERVICE_NAME = 'reto2-demo-micro'
     GCP_KEY_FILE = '/home/jenkins/agent/gcp-key.json'
-    IMAGE_GCP = "gcr.io/${PROJECT_ID}/${SERVICE_NAME}"
+    IMAGE_GCP = "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO_NAME}/${IMAGE_NAME}"
   }
 
   options {
@@ -79,7 +79,8 @@ pipeline {
                     gcloud auth activate-service-account --key-file=$GCP_KEY
                     gcloud config set project $PROJECT_ID
                     gcloud auth configure-docker $REGION-docker.pkg.dev -q
-                    docker push $REGION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$IMAGE_NAME:$BUILD_NUMBER
+                    docker push ${IMAGE_GCP}:$BUILD_NUMBER
+		    docker push ${IMAGE_GCP}:latest
                 '''
                 }
             }
