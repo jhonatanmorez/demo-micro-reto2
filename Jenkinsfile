@@ -83,6 +83,9 @@ pipeline {
    		    echo "🔖 Etiquetando imagen local para Artifact Registry..."
 		    docker tag ${DOCKERHUB_NAMESPACE}/${IMAGE_NAME}:${BUILD_NUMBER} \
                                $REGION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$IMAGE_NAME:${BUILD_NUMBER}
+		    docker tag ${DOCKERHUB_NAMESPACE}/${IMAGE_NAME}:${BUILD_NUMBER} \
+                               $REGION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$IMAGE_NAME:latest
+
 
 		    echo "⬆️ Subiendo imagen a Artifact Registry..."
                     docker push ${IMAGE_GCP}:$BUILD_NUMBER
