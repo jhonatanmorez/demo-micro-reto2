@@ -11,6 +11,7 @@ pipeline {
     //Cloud Run / GCP
     PROJECT_ID = 'cka-1-469505'
     REGION = 'us-central1'
+    REPO_NAME = 'reto2-repo'
     SERVICE_NAME = 'reto2-demo-micro'
     GCP_KEY_FILE = '/home/jenkins/agent/gcp-key.json'
     IMAGE_GCP = "gcr.io/${PROJECT_ID}/${SERVICE_NAME}"
