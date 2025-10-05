@@ -2,7 +2,7 @@ pipeline {
   agent { label 'slave' }
 
   environment {
-    IMAGE_NAME = "demo-micro"
+    IMAGE_NAME = "reto2-demo-micro"
     DOCKERHUB_NAMESPACE = "jorgemore"   // reemplaza con tu usuario Docker Hub
     REGISTRY = "docker.io"
     JAVA_HOME = "${tool 'JDK17'}"
