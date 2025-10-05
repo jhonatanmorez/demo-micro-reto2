@@ -100,8 +100,9 @@ pipeline {
       steps {
         script {
           echo "🚀 Desplegando servicio ${SERVICE_NAME} en Cloud Run..."
+	  withCredentials([file(credentialsId: 'gcp-key', variable: 'GCP_KEY')]) {	
           sh """
-            gcloud auth activate-service-account --key-file=${GCP_KEY_FILE}
+            gcloud auth activate-service-account --key-file=${GCP_KEY}
             gcloud config set project ${PROJECT_ID}
             gcloud config set run/region ${REGION}
             gcloud run deploy ${SERVICE_NAME} \
@@ -110,6 +111,7 @@ pipeline {
               --platform managed \
               --allow-unauthenticated
           """
+	}
         }
       }
     }
