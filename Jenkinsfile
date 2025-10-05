@@ -1,5 +1,5 @@
 pipeline {
-  agent { label 'any' }
+  agent any
 
   environment {
     IMAGE_NAME = "demo-micro"
