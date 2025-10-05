@@ -79,6 +79,12 @@ pipeline {
                     gcloud auth activate-service-account --key-file=$GCP_KEY
                     gcloud config set project $PROJECT_ID
                     gcloud auth configure-docker $REGION-docker.pkg.dev -q
+		    
+   		    echo "🔖 Etiquetando imagen local para Artifact Registry..."
+		    docker tag ${DOCKERHUB_NAMESPACE}/${IMAGE_NAME}:${BUILD_NUMBER} \
+                               $REGION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$IMAGE_NAME:${BUILD_NUMBER}
+
+		    echo "⬆️ Subiendo imagen a Artifact Registry..."
                     docker push ${IMAGE_GCP}:$BUILD_NUMBER
 		    docker push ${IMAGE_GCP}:latest
                 '''
