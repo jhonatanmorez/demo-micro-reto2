@@ -43,7 +43,7 @@ pipeline {
     stage('Build JAR') {
       steps {
 	dir('demo-micro'){
-        sh 'mvn -B -DskipTests clean package'
+        sh 'mvn -B -DskipTests clean package spring-boot:repackage'
 	}
       }
       post {
@@ -57,7 +57,7 @@ pipeline {
       steps {
         script {
           def tag = env.BUILD_NUMBER
-          def image = docker.build("${DOCKERHUB_NAMESPACE}/${IMAGE_NAME}:${tag}")
+          def image = docker.build("${DOCKERHUB_NAMESPACE}/${IMAGE_NAME}:${tag}", "--no-cache .")
           
 	  echo "🔐 Publicando imagen en ${REGISTRY}/${DOCKERHUB_NAMESPACE}/${IMAGE_NAME}:${tag}"
 
@@ -78,7 +78,7 @@ pipeline {
                     echo "Usando clave: $GCP_KEY"
                     gcloud auth activate-service-account --key-file=$GCP_KEY
                     gcloud config set project $PROJECT_ID
-                    gcloud auth configure-docker $REGION-docker.pkg.dev -q
+                    gcloud auth configure-docker $REGION-docker.pkg.dev --quiet
 		    
    		    echo "🔖 Etiquetando imagen local para Artifact Registry..."
 		    docker tag ${DOCKERHUB_NAMESPACE}/${IMAGE_NAME}:${BUILD_NUMBER} \
@@ -109,6 +109,7 @@ pipeline {
               --image ${IMAGE_GCP}:${BUILD_NUMBER} \
               --region ${REGION} \
               --platform managed \
+	      --port 8080 \
               --allow-unauthenticated
           """
 	}
@@ -120,6 +121,8 @@ pipeline {
 
   post {
     success {
+      echo "✅ [SUCCESS] Imagen publicada y desplegada:"
+      echo "🔗 Cloud Run: https://console.cloud.google.com/run/detail/${REGION}/${SERVICE_NAME}"
       echo "✅ Imagen publicada en Docker Hub: ${env.DOCKERHUB_NAMESPACE}/${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
     }
     failure {
