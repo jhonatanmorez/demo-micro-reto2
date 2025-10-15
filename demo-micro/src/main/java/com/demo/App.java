@@ -13,6 +13,7 @@ public class App {
 
     @GetMapping("/")
     public String hello() {
-        return "Reto 2 - Hello World desde Docker + Jenkins! CI completo Jorge More";
+	    
+        return "Hello World desde Docker + Jenkins + cloudrun ! CICD completo Jorge More";
     }
 }
