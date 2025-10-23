@@ -14,6 +14,6 @@ public class App {
     @GetMapping("/")
     public String hello() {
 	    
-        return "Docker + Jenkins + cloudrun ! CICD completo Jorge More";
+        return "Docker + Jenkins + cloudrun ! CICD - TECSUP v2 - DEMO2";
     }
 }
